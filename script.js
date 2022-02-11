@@ -6,6 +6,7 @@ class PhotoGallery{
         this.searchForm = document.querySelector('.header form');
         this.loadMore = document.querySelector('.load-more');
         this.pageIndex = 1;
+        this.searchValueGlobal ='';
         this.eventHandle();
     }
     eventHandle(){
@@ -13,6 +14,7 @@ class PhotoGallery{
             this.getImage(1);
         });
         this.searchForm.addEventListener('submit',(e)=>{
+            this.pageIndex =1;
             this.getSearchedImages(e)
         })
         this.loadMore.addEventListener('click',(e)=>{
@@ -56,10 +58,18 @@ class PhotoGallery{
         e.preventDefault();
         this.galleryDiv.innerHTML='';
         const searchValue =e.target.querySelector('input').value;
-        const baseURL = await `https://api.pexels.com/v1/search?query=${searchValue}&page=1&per_page=12`;
+        this.searchValueGlobal = searchValue;
+        console.log(this.searchValueGlobal);
+        const baseURL = `https://api.pexels.com/v1/search?query=${searchValue}&page=1&per_page=12`;
         const data = await this.fetchImages(baseURL);
         this.genarateHtml(data.photos)
         e.target.reset();
+    }
+    async getMoreSearchedImages(index){
+        
+        const baseURL =`https://api.pexels.com/v1/search?query=${this.searchValueGlobal}&page=${index}&per_page=12`;
+        const data = await this.fetchImages(baseURL);
+        this.genarateHtml(data.photos)
     }
     loadMoreImages(e){
         let index = ++this.pageIndex;
@@ -67,7 +77,7 @@ class PhotoGallery{
        if(loadMoreData === 'curated'){
         this.getImage(index)
        }else{
-
+        this.getMoreSearchedImages(index)
        }
 
     }
